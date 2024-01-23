@@ -67,6 +67,14 @@ services:
 
 请将 `/config-path` 和 `/download-path` 替换为你的配置文件和下载文件的实际路径。
 
+然后，你可以使用以下的命令来启动你的 Docker Compose 配置：
+
+```bash
+VNC_PASSWORD=password docker compose -f /path-to-your-docker-compose-file/docker-compose.yml up -d
+```
+
+在这个命令中，你需要将 /path-to-your-docker-compose-file 替换为你的 docker-compose.yml 文件的实际路径。VNC_PASSWORD=password 设置了 VNC_PASSWORD 环境变量的值为 password，你可以将 password 替换为你的实际密码。
+
 然后，你可以在浏览器中访问 `http://localhost:5800` 来使用 Baidunetdisk。
 
 ## 参考与感谢
