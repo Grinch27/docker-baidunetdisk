@@ -11,6 +11,14 @@ Baidunetdisk Container for self learning
 
 这个项目是一个 Docker 容器，其中包含了 Baidunetdisk。它可以帮助你在任何支持 Docker 的平台上运行 Baidunetdisk，无论是在本地机器上，还是在云服务器上。
 
+镜像基于 [jlesage/baseimage-gui](https://hub.docker.com/r/jlesage/baseimage-gui) debian-11-v4.5.3 镜像进行构建
+
+参考 [gshang2017/docker](https://github.com/gshang2017/docker) 代码，使用 --no-install-recommends 参数进行安装减少镜像大小。
+
+个人使用在arm64 Openwrt系统环境，体验感受：从镜像大小上看，相比未使用 --no-install-recommends，镜像大小从约 700MB 减少到约 600MB。在amd64 Docker Desktop中能够成功运行容器。
+
+注意：由于 [releases v4.3.0](https://github.com/jlesage/docker-baseimage-gui/releases/tag/v4.3.0) 文中提到Openbox替代了jwm，在Dockerfile文件中添加了与openbox相关的设置。
+
 ## 使用 Docker 运行百度网盘
 
 你可以使用以下的 Docker 命令或者 Docker Compose 配置来运行百度网盘。
