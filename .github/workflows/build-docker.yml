@@ -9,7 +9,7 @@ on:
       path_dockerfile:
         description: "dockerfile path in repo"
         required: true
-        default: "Dockerfile"
+        default: "Dockerfile.dev"
         type: string
       package_app:
         description: "Input package"
@@ -26,6 +26,11 @@ on:
         required: true
         default: "grinch27/baidunetdisk"
         type: string
+      tag:
+        description: "tag"
+        required: true
+        default: "dev"
+        type: string
 
 env:
   TZ: UTC
@@ -33,6 +38,7 @@ env:
   package_app: ${{ inputs.package_app || 'baidunetdisk' }}
   arch_branch: ${{ inputs.arch_branch || 'linux/amd64,linux/arm64' }}
   dockerhub_repo: ${{ inputs.dockerhub_repo || 'grinch27/baidunetdisk' }}
+  tag: ${{ inputs.tag || 'latest' }}
 
 jobs:
   build:
@@ -75,26 +81,50 @@ jobs:
 
           # 第1步：请求网址，搜寻 chunk-common
           chunk_common_url=$(curl -s ${{ env.PACKAGE_SOURCE_URL }} | grep -oP $regex_chunk_common | head -n 1)
-
           if [ -z "$chunk_common_url" ]; then
             echo "Chunk common URL not found"
             exit 1
           fi
-
           echo "Chunk common URL: $chunk_common_url"
 
-          # 第2步：请求找到的 chunk-common，搜寻 LinuxGuanjia
-          linux_guanjia_url=$(curl -s $chunk_common_url | grep -oP $regex_linux_guanjia | head -n 1)
-
-          if [ -z "$linux_guanjia_url" ]; then
+          # 第2步：请求找到的 chunk-common，搜寻 baidunetdisk
+          url_baidunetdisk=$(curl -s $chunk_common_url | grep -oP $regex_linux_guanjia | head -n 1)
+          if [ -z "$url_baidunetdisk" ]; then
             echo "Linux Guanjia URL not found"
             exit 1
           fi
+          echo "baidunetdisk URL: $url_baidunetdisk"
+          echo "url=$url_baidunetdisk" >> ${GITHUB_OUTPUT}
 
-          echo "Linux Guanjia URL: $linux_guanjia_url"
-
-          # 第3步：从 LinuxGuanjia URL 中提取版本号
-          version=$(echo $linux_guanjia_url | grep -oP $regex_version)
-          echo "Version: $version"
+          # 第3步：从 baidunetdisk URL 中提取版本号
+          version=$(echo $url_baidunetdisk | grep -oP $regex_version)
+          echo "version: $version"
+          echo "version=$version" >> ${GITHUB_OUTPUT}
 
           echo "status=success" >> ${GITHUB_OUTPUT}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@master
+        with:
+          images: ${{ env.dockerhub_repo }}
+          tags: |
+            type=raw,value=${{ env.tag }},enabled=true
+            # type=raw,value=${{ steps.ver.outputs.version }},enabled=true
+          flavor: latest=false
+
+      - name: Build Docker image
+        id: build
+        uses: docker/build-push-action@master
+        with:
+          context: .
+          file: ${{ github.workspace }}/${{ env.path_dockerfile }}
+          no-cache: false
+          platforms: ${{ env.arch_branch }}
+          load: false
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            URL=${{ steps.ver.outputs.url }}
+            VERSION=${{ steps.ver.outputs.version }}
