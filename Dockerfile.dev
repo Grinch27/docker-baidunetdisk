@@ -33,17 +33,17 @@ RUN apt-get install -y --no-install-recommends --fix-missing \
     ttf-wqy-zenhei \
     procps \
     libx11-xcb1 \
-    libxmuu1 \
-    # libatspi2.0-0 \
-    # ca-certificates \
-    # ibindicator3-7 \
-    # wget \
-    # libsecret-common \
-    # pngquant \
-    # libdbusmenu-glib4 \
-    # x11-xserver-utils
+    libxmuu1
+# libatspi2.0-0 \
+# ca-certificates \
+# ibindicator3-7 \
+# wget \
+# libsecret-common \
+# pngquant \
+# libdbusmenu-glib4 \
+# x11-xserver-utils
 
-RUN OS_ARCH=$(dpkg --print-architecture)  \
+RUN OS_ARCH=$(dpkg --print-architecture) \
     && DEB_FILE=/baidunetdisk_${APP_VER}_${OS_ARCH}.deb \
     && DEB_URL=https://pkg-ant.baidu.com/issue/netdisk/LinuxGuanjia/${APP_VER}/baidunetdisk_${APP_VER}_${OS_ARCH}.deb \
     && echo ${DEB_URL} \
