@@ -31,6 +31,11 @@ on:
         required: true
         default: "dev"
         type: string
+      version:
+        description: "version"
+        required: false
+        default: "4.17.7"
+        type: string
 
 env:
   TZ: UTC
@@ -39,6 +44,7 @@ env:
   arch_branch: ${{ inputs.arch_branch || 'linux/amd64,linux/arm64' }}
   dockerhub_repo: ${{ inputs.dockerhub_repo || 'grinch27/baidunetdisk' }}
   tag: ${{ inputs.tag || 'latest' }}
+  version: ${{ inputs.version }}
 
 jobs:
   build:
@@ -47,7 +53,6 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    # if: ${{ github.event.repository.owner.id }} == ${{ github.event.sender.id }}
     steps:
       - name: Checkout DIY
         uses: actions/checkout@main
@@ -74,32 +79,37 @@ jobs:
         run: |
           echo -e "Current working directory: $(pwd)"
 
-          # 定义正则表达式
-          regex_chunk_common='https://nd-static.bdstatic.com/m-static/wp-brand/js/chunk-common.[^/]+?\.js'
-          regex_linux_guanjia='https://issuepcdn.baidupcs.com/issue/netdisk/LinuxGuanjia/.[^/]+?/.[^/]+?\.deb'
-          regex_version='baidunetdisk_\K[^_]+(?=_amd64.deb)'
+          if [ -z "${{ env.version }}" ]; then
+            # 定义正则表达式
+            regex_chunk_common='https://nd-static.bdstatic.com/m-static/wp-brand/js/chunk-common.[^/]+?\.js'
+            regex_linux_guanjia='https://issuepcdn.baidupcs.com/issue/netdisk/LinuxGuanjia/.[^/]+?/.[^/]+?\.deb'
+            regex_version='baidunetdisk_\K[^_]+(?=_amd64.deb)'
 
-          # 第1步：请求网址，搜寻 chunk-common
-          chunk_common_url=$(curl -s ${{ env.PACKAGE_SOURCE_URL }} | grep -oP $regex_chunk_common | head -n 1)
-          if [ -z "$chunk_common_url" ]; then
-            echo "Chunk common URL not found"
-            exit 1
+            # 第1步：请求网址，搜寻 chunk-common
+            chunk_common_url=$(curl -s ${{ env.PACKAGE_SOURCE_URL }} | grep -oP $regex_chunk_common | head -n 1)
+            if [ -z "$chunk_common_url" ]; then
+              echo "Chunk common URL not found"
+              exit 1
+            fi
+            echo "Chunk common URL: $chunk_common_url"
+
+            # 第2步：请求找到的 chunk-common，搜寻 baidunetdisk
+            url_baidunetdisk=$(curl -s $chunk_common_url | grep -oP $regex_linux_guanjia | head -n 1)
+            if [ -z "$url_baidunetdisk" ]; then
+              echo "Linux Guanjia URL not found"
+              exit 1
+            fi
+            echo "baidunetdisk URL: $url_baidunetdisk"
+            echo "url=$url_baidunetdisk" >> ${GITHUB_OUTPUT}
+
+            # 第3步：从 baidunetdisk URL 中提取版本号
+            version=$(echo $url_baidunetdisk | grep -oP $regex_version)
+            echo "version: $version"
+            echo "version=$version" >> ${GITHUB_OUTPUT}
+
+          else
+            echo "version=${{ env.version }}" >> ${GITHUB_OUTPUT}
           fi
-          echo "Chunk common URL: $chunk_common_url"
-
-          # 第2步：请求找到的 chunk-common，搜寻 baidunetdisk
-          url_baidunetdisk=$(curl -s $chunk_common_url | grep -oP $regex_linux_guanjia | head -n 1)
-          if [ -z "$url_baidunetdisk" ]; then
-            echo "Linux Guanjia URL not found"
-            exit 1
-          fi
-          echo "baidunetdisk URL: $url_baidunetdisk"
-          echo "url=$url_baidunetdisk" >> ${GITHUB_OUTPUT}
-
-          # 第3步：从 baidunetdisk URL 中提取版本号
-          version=$(echo $url_baidunetdisk | grep -oP $regex_version)
-          echo "version: $version"
-          echo "version=$version" >> ${GITHUB_OUTPUT}
 
           echo "status=success" >> ${GITHUB_OUTPUT}
 
