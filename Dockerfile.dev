@@ -13,6 +13,7 @@ ENV LC_ALL=C
 RUN apt-get update --ignore-missing
 
 RUN apt-get install -y --no-install-recommends --fix-missing \
+        ca-certificates \
         curl \
         bzip2 \
         lsb-release
