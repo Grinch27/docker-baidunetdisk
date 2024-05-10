@@ -68,17 +68,13 @@ jobs:
         run: |
           echo -e "Current working directory: $(pwd)"
 
-          # https://pkg-ant.baidu.com/
-          # <link href="https://nd-static.bdstatic.com/m-static/wp-brand/css/chunk-common.102241f4.css" rel="preload" as="style">
-          # link: "https://issuepcdn.baidupcs.com/issue/netdisk/LinuxGuanjia/4.11.5/baidunetdisk_4.11.5_amd64.deb"
-
           # 第一步：请求 https://pkg-ant.baidu.com/ 网址，并搜寻 chunk-common
-          chunk_common_url=$(curl -s ${{ env.PACKAGE_SOURCE_URL }} | grep -P 'https://nd-static.bdstatic.com/m-static/wp-brand/css/chunk-common.\K[^"]+')
+          chunk_common_url=$(curl -s ${{ env.PACKAGE_SOURCE_URL }} | grep -oP 'https://nd-static.bdstatic.com/m-static/wp-brand/css/chunk-common.\K[^"]+\.js' | head -n 1)
 
           echo "Chunk common URL: $chunk_common_url"
 
           # 第二步：请求找到的 chunk-common，搜寻 LinuxGuanjia 含有 deb 后缀
-          linux_guanjia_url=$(curl -s $chunk_common_url | grep -oP 'https://issuepcdn.baidupcs.com/issue/netdisk/LinuxGuanjia/\K[^"]+\.deb')
+          linux_guanjia_url=$(curl -s $chunk_common_url | grep -oP 'https://issuepcdn.baidupcs.com/issue/netdisk/LinuxGuanjia/\K[^"]+\.deb' | head -n 1)
 
           echo "Linux Guanjia URL: $linux_guanjia_url"
 
