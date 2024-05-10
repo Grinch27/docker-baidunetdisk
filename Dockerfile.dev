@@ -20,9 +20,11 @@ RUN apt-get install -y --no-install-recommends --fix-missing \
 
 RUN OS_ARCH=$(dpkg --print-architecture) && \
     DEB_FILE=/baidunetdisk_${APP_VER}_${OS_ARCH}.deb && \
-    curl -fsSL https://pkg-ant.baidu.com/issue/netdisk/LinuxGuanjia/${APP_VER}/baidunetdisk_${APP_VER}_${OS_ARCH}.deb -o $DEB_FILE && \
-    dpkg -i $DEB_FILE && \
-    rm $DEB_FILE
+    DEB_URL=https://pkg-ant.baidu.com/issue/netdisk/LinuxGuanjia/${APP_VER}/baidunetdisk_${APP_VER}_${OS_ARCH}.deb && \
+    echo ${DEB_URL}
+    curl -fsSL ${DEB_URL} -o ${DEB_FILE} && \
+    dpkg -i ${DEB_FILE} && \
+    rm ${DEB_FILE}
     
 # clean baidunetdisk
 RUN cd /opt/baidunetdisk \
