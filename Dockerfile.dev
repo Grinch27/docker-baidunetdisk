@@ -58,7 +58,7 @@ RUN cd /opt/baidunetdisk \
     && cd / \
     && rm -rf /opt/baidunetdisk/resources/app.asar.unpacked/node_modules/@baidu/clipboard-listen-macos/src \
     # clear font cache
-    && rm -rf /var/cache/fontconfig/* \
+    && rm -rf /var/cache/fontconfig/*
 
 # clear apt cache
 RUN apt-get purge --autoremove -y \
