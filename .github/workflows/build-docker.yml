@@ -69,7 +69,7 @@ jobs:
           echo -e "Current working directory: $(pwd)"
 
           # 定义正则表达式
-          regex_chunk_common='https://.+?/wp-brand/js/chunk-common.[^/]+?\.js'
+          regex_chunk_common='https://nd-static.bdstatic.com/m-static/wp-brand/js/chunk-common.[^/]+?\.js'
           regex_linux_guanjia='https://.+?/netdisk/LinuxGuanjia/\K[^/]+?\.deb'
 
           # 第一步：请求网址，并搜寻 chunk-common
