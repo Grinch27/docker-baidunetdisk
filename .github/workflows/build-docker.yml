@@ -71,8 +71,9 @@ jobs:
           # 定义正则表达式
           regex_chunk_common='https://nd-static.bdstatic.com/m-static/wp-brand/js/chunk-common.[^/]+?\.js'
           regex_linux_guanjia='https://issuepcdn.baidupcs.com/issue/netdisk/LinuxGuanjia/.[^/]+?/.[^/]+?\.deb'
+          regex_version='baidunetdisk_\K[^_]+(?=_amd64.deb)'
 
-          # 第一步：请求网址，搜寻 chunk-common
+          # 第1步：请求网址，搜寻 chunk-common
           chunk_common_url=$(curl -s ${{ env.PACKAGE_SOURCE_URL }} | grep -oP $regex_chunk_common | head -n 1)
 
           if [ -z "$chunk_common_url" ]; then
@@ -82,7 +83,7 @@ jobs:
 
           echo "Chunk common URL: $chunk_common_url"
 
-          # 第二步：请求找到的 chunk-common，搜寻 LinuxGuanjia
+          # 第2步：请求找到的 chunk-common，搜寻 LinuxGuanjia
           linux_guanjia_url=$(curl -s $chunk_common_url | grep -oP $regex_linux_guanjia | head -n 1)
 
           if [ -z "$linux_guanjia_url" ]; then
@@ -91,5 +92,9 @@ jobs:
           fi
 
           echo "Linux Guanjia URL: $linux_guanjia_url"
+
+          # 第3步：从 LinuxGuanjia URL 中提取版本号
+          version=$(echo $linux_guanjia_url | grep -oP $regex_version)
+          echo "Version: $version"
 
           echo "status=success" >> ${GITHUB_OUTPUT}
