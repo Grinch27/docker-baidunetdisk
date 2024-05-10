@@ -70,7 +70,7 @@ jobs:
 
           # 定义正则表达式
           regex_chunk_common='https://nd-static.bdstatic.com/m-static/wp-brand/js/chunk-common.[^/]+?\.js'
-          regex_linux_guanjia='https://.+?/netdisk/LinuxGuanjia/\K[^/]+?\.deb'
+          regex_linux_guanjia='https://issuepcdn.baidupcs.com/issue/netdisk/LinuxGuanjia/.+?\.deb'
 
           # 第一步：请求网址，并搜寻 chunk-common
           chunk_common_url=$(curl -s ${{ env.PACKAGE_SOURCE_URL }} | grep -oP $regex_chunk_common | head -n 1)
