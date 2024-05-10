@@ -12,18 +12,44 @@ ENV LC_ALL=C
 RUN apt-get update --ignore-missing
 
 RUN apt-get install -y --no-install-recommends --fix-missing \
-        ca-certificates \
-        curl \
-        bzip2 \
-        lsb-release
+    ca-certificates \
+    curl \
+    bzip2 \
+    libgtk-3-0 \
+    libnotify4 \
+    libnss3 \
+    libxss1 \
+    libxtst6 \
+    xdg-utils \
+    libsecret-1-0 \
+    libappindicator3-1 \
+    libuuid1 \
+    curl \
+    bzip2 \
+    libasound2 \
+    libgbm1 \
+    desktop-file-utils \
+    libdbusmenu-gtk3-4 \
+    ttf-wqy-zenhei \
+    procps \
+    libx11-xcb1 \
+    libxmuu1 \
+    # libatspi2.0-0 \
+    # ca-certificates \
+    # ibindicator3-7 \
+    # wget \
+    # libsecret-common \
+    # pngquant \
+    # libdbusmenu-glib4 \
+    # x11-xserver-utils
 
-RUN OS_ARCH=$(dpkg --print-architecture) && \
-    DEB_FILE=/baidunetdisk_${APP_VER}_${OS_ARCH}.deb && \
-    DEB_URL=https://pkg-ant.baidu.com/issue/netdisk/LinuxGuanjia/${APP_VER}/baidunetdisk_${APP_VER}_${OS_ARCH}.deb && \
-    echo ${DEB_URL} && \
-    curl -fsSL ${DEB_URL} -o ${DEB_FILE} && \
-    dpkg -i ${DEB_FILE} && \
-    rm ${DEB_FILE}
+RUN OS_ARCH=$(dpkg --print-architecture)  \
+    && DEB_FILE=/baidunetdisk_${APP_VER}_${OS_ARCH}.deb \
+    && DEB_URL=https://pkg-ant.baidu.com/issue/netdisk/LinuxGuanjia/${APP_VER}/baidunetdisk_${APP_VER}_${OS_ARCH}.deb \
+    && echo ${DEB_URL} \
+    && curl -fsSL ${DEB_URL} -o ${DEB_FILE} \
+    && dpkg -i ${DEB_FILE} \
+    && rm ${DEB_FILE}
     
 # clean baidunetdisk
 RUN cd /opt/baidunetdisk \
@@ -35,7 +61,9 @@ RUN cd /opt/baidunetdisk \
     && rm -rf /var/cache/fontconfig/* \
 
 # clear apt cache
-RUN apt-get purge --autoremove -y curl bzip2 \
+RUN apt-get purge --autoremove -y \
+        curl \
+        bzip2 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /var/log/*.log
