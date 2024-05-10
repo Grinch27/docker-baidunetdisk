@@ -126,5 +126,4 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            URL=${{ steps.ver.outputs.url }}
-            VERSION=${{ steps.ver.outputs.version }}
+            APP_VER=${{ steps.ver.outputs.version }}
