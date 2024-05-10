@@ -69,16 +69,26 @@ jobs:
           echo -e "Current working directory: $(pwd)"
 
           # 定义正则表达式
-          regex_chunk_common='.+/chunk-common.[^"]+\.js'
-          regex_linux_guanjia='.+/netdisk/LinuxGuanjia/\K[^"]+\.deb'
+          regex_chunk_common='https://.+/chunk-common.[^"]+\.js'
+          regex_linux_guanjia='https://.+/netdisk/LinuxGuanjia/\K[^"]+\.deb'
 
           # 第一步：请求网址，并搜寻 chunk-common
-          chunk_common_url=$(curl -s ${{ env.PACKAGE_SOURCE_URL }} | grep -oP $regex_chunk_common)
+          chunk_common_url=$(curl -s ${{ env.PACKAGE_SOURCE_URL }} | grep -oP $regex_chunk_common | head -n 1)
+
+          if [ -z "$chunk_common_url" ]; then
+            echo "Chunk common URL not found"
+            exit 1
+          fi
 
           echo "Chunk common URL: $chunk_common_url"
 
           # 第二步：请求找到的 chunk-common，搜寻 LinuxGuanjia 含有 deb 后缀
-          linux_guanjia_url=$(curl -s $chunk_common_url | grep -oP $regex_linux_guanjia)
+          linux_guanjia_url=$(curl -s $chunk_common_url | grep -oP $regex_linux_guanjia | head -n 1)
+
+          if [ -z "$linux_guanjia_url" ]; then
+            echo "Linux Guanjia URL not found"
+            exit 1
+          fi
 
           echo "Linux Guanjia URL: $linux_guanjia_url"
 
