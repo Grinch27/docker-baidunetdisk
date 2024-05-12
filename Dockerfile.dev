@@ -50,9 +50,13 @@ RUN apt-get update --ignore-missing \
     # && apt-get install -y --no-install-recommends --fix-missing \
     #     tigervnc-standalone-server \
     #     tigervnc-common \
+    # tightvnc-java_1.3.10-4_all.deb	TightVNC java applet and command line program
+    # tightvncpasswd_1.3.10-7_amd64.deb	virtual network computing password tool
+    # tightvncserver_1.3.10-7_amd64.deb	virtual network computing server software
+    # xtightvncviewer_1.3.10-7_amd64.deb	virtual network computing client software for X
     # tightVNC
     && apt-get install -y --no-install-recommends --fix-missing \
-        novnc
+        tightvncserver
 
 # Set user for vncserver
 ENV USER=root
