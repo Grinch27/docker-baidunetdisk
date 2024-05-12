@@ -9,31 +9,6 @@ ENV DISPLAY_HEIGHT="1080"
 ENV HOME=/config
 ENV LC_ALL=C
 
-RUN apt-get update --ignore-missing
-
-RUN apt-get install -y --no-install-recommends --fix-missing \
-    ca-certificates \
-    curl \
-    bzip2 \
-    libgtk-3-0 \
-    libnotify4 \
-    libnss3 \
-    libxss1 \
-    libxtst6 \
-    xdg-utils \
-    libsecret-1-0 \
-    libappindicator3-1 \
-    libuuid1 \
-    curl \
-    bzip2 \
-    libasound2 \
-    libgbm1 \
-    desktop-file-utils \
-    libdbusmenu-gtk3-4 \
-    ttf-wqy-zenhei \
-    procps \
-    libx11-xcb1 \
-    libxmuu1
 # libatspi2.0-0 \
 # ca-certificates \
 # ibindicator3-7 \
@@ -42,6 +17,54 @@ RUN apt-get install -y --no-install-recommends --fix-missing \
 # pngquant \
 # libdbusmenu-glib4 \
 # x11-xserver-utils
+
+RUN apt-get update --ignore-missing \
+    # Basic
+    && apt-get install -y --no-install-recommends --fix-missing \
+        ca-certificates \
+        curl \
+        bzip2 \
+        libgtk-3-0 \
+        libnotify4 \
+        libnss3 \
+        libxss1 \
+        libxtst6 \
+        xdg-utils \
+        libsecret-1-0 \
+        libappindicator3-1 \
+        libuuid1 \
+        curl \
+        bzip2 \
+        libasound2 \
+        libgbm1 \
+        desktop-file-utils \
+        libdbusmenu-gtk3-4 \
+        ttf-wqy-zenhei \
+        procps \
+        libx11-xcb1 \
+        libxmuu1 \
+    # noVNC
+    && apt-get install -y --no-install-recommends --fix-missing \
+        novnc \
+    # # TigerVNC
+    # && apt-get install -y --no-install-recommends --fix-missing \
+    #     tigervnc-standalone-server \
+    #     tigervnc-common \
+    # tightVNC
+    && apt-get install -y --no-install-recommends --fix-missing \
+        novnc
+
+# Set user for vncserver
+ENV USER=root
+ENV HOME=/root
+
+# Set default password
+RUN mkdir $HOME/.vnc && \
+    echo "password" | vncpasswd -f > $HOME/.vnc/passwd && \
+    chmod 600 $HOME/.vnc/passwd
+
+# Expose VNC port
+EXPOSE 5901
 
 RUN OS_ARCH=$(dpkg --print-architecture) \
     && DEB_FILE=/baidunetdisk_${APP_VER}_${OS_ARCH}.deb \
@@ -80,4 +103,7 @@ RUN echo "#!/bin/sh\n/opt/baidunetdisk/baidunetdisk --disable-gpu-sandbox --no-s
     && echo "\n[Default Applications]\nx-scheme-handler/baiduyunguanjia=baidunetdisk.desktop" > /config/.config/mimeapps.list \
     && chmod 777 /config/.config/mimeapps.list
 
-ENTRYPOINT ["/init"]
+# ENTRYPOINT ["/init"]
+
+# Start VNC server
+CMD ["vncserver", "-fg"]
