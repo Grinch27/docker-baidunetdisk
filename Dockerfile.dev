@@ -46,17 +46,14 @@ RUN apt-get update --ignore-missing \
     # noVNC
     && apt-get install -y --no-install-recommends --fix-missing \
         novnc \
+    # tightVNC
+    && apt-get install -y --no-install-recommends --fix-missing \
+        tightvncserver
     # # TigerVNC
     # && apt-get install -y --no-install-recommends --fix-missing \
     #     tigervnc-standalone-server \
     #     tigervnc-common \
-    # tightvnc-java_1.3.10-4_all.deb	TightVNC java applet and command line program
-    # tightvncpasswd_1.3.10-7_amd64.deb	virtual network computing password tool
-    # tightvncserver_1.3.10-7_amd64.deb	virtual network computing server software
-    # xtightvncviewer_1.3.10-7_amd64.deb	virtual network computing client software for X
-    # tightVNC
-    && apt-get install -y --no-install-recommends --fix-missing \
-        tightvncserver
+    
 
 # Set user for vncserver
 ENV USER=root
@@ -96,16 +93,16 @@ RUN apt-get purge --autoremove -y \
     && rm -rf /var/log/*.log
 
 # Clean temp apt source & reset debian apt source
-RUN echo "#!/bin/sh\n/opt/baidunetdisk/baidunetdisk --disable-gpu-sandbox --no-sandbox" > /startapp.sh \
-    # set /startapp.sh
-    && chmod +x /startapp.sh \
-    # openbox
-    && mkdir -p /etc/openbox \
-    && echo "<Type>normal</Type>\n<Name>Baidunetdisk</Name>" > /etc/openbox/main-window-selection.xml \
-    # set /config/.config/mimeapps.list
-    && mkdir -p /config/.config \
-    && echo "\n[Default Applications]\nx-scheme-handler/baiduyunguanjia=baidunetdisk.desktop" > /config/.config/mimeapps.list \
-    && chmod 777 /config/.config/mimeapps.list
+# RUN echo "#!/bin/sh\n/opt/baidunetdisk/baidunetdisk --disable-gpu-sandbox --no-sandbox" > /startapp.sh \
+#     # set /startapp.sh
+#     && chmod +x /startapp.sh \
+#     # openbox
+#     && mkdir -p /etc/openbox \
+#     && echo "<Type>normal</Type>\n<Name>Baidunetdisk</Name>" > /etc/openbox/main-window-selection.xml \
+#     # set /config/.config/mimeapps.list
+#     && mkdir -p /config/.config \
+#     && echo "\n[Default Applications]\nx-scheme-handler/baiduyunguanjia=baidunetdisk.desktop" > /config/.config/mimeapps.list \
+#     && chmod 777 /config/.config/mimeapps.list
 
 # ENTRYPOINT ["/init"]
 
