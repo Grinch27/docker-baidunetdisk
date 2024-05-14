@@ -1,110 +1,39 @@
+# Pull base image.
 FROM debian:12-slim
 
-ARG APP_VER
-
-ENV LANG="zh_CN.UTF-8"
-ENV TZ="Asia/Shanghai"
-ENV DISPLAY_WIDTH="1920"
-ENV DISPLAY_HEIGHT="1080"
-ENV HOME=/config
-ENV LC_ALL=C
-
-# libatspi2.0-0 \
-# ca-certificates \
-# ibindicator3-7 \
-# wget \
-# libsecret-common \
-# pngquant \
-# libdbusmenu-glib4 \
-# x11-xserver-utils
-
-RUN apt-get update --ignore-missing \
-    # Basic
-    && apt-get install -y --no-install-recommends --fix-missing \
-        ca-certificates \
-        curl \
-        bzip2 \
-        libgtk-3-0 \
-        libnotify4 \
-        libnss3 \
-        libxss1 \
-        libxtst6 \
-        xdg-utils \
-        libsecret-1-0 \
-        libappindicator3-1 \
-        libuuid1 \
-        curl \
-        bzip2 \
-        libasound2 \
-        libgbm1 \
-        desktop-file-utils \
-        libdbusmenu-gtk3-4 \
-        ttf-wqy-zenhei \
-        procps \
-        libx11-xcb1 \
-        libxmuu1 \
-    # noVNC
-    && apt-get install -y --no-install-recommends --fix-missing \
-        novnc \
-    # tightVNC
-    && apt-get install -y --no-install-recommends --fix-missing \
-        tightvncserver
-    # # TigerVNC
-    # && apt-get install -y --no-install-recommends --fix-missing \
-    #     tigervnc-standalone-server \
-    #     tigervnc-common \
-    
-
-# Set user for vncserver
-ENV USER=root
-ENV HOME=/root
-
-# Set default password
-RUN mkdir $HOME/.vnc && \
-    echo "password" | vncpasswd -f > $HOME/.vnc/passwd && \
-    chmod 600 $HOME/.vnc/passwd
-
-# Expose VNC port
-EXPOSE 5901
-
-RUN OS_ARCH=$(dpkg --print-architecture) \
-    && DEB_FILE=/baidunetdisk_${APP_VER}_${OS_ARCH}.deb \
-    && DEB_URL=https://pkg-ant.baidu.com/issue/netdisk/LinuxGuanjia/${APP_VER}/baidunetdisk_${APP_VER}_${OS_ARCH}.deb \
-    && echo ${DEB_URL} \
-    && curl -fsSL ${DEB_URL} -o ${DEB_FILE} \
-    && dpkg -i ${DEB_FILE} \
-    && rm ${DEB_FILE}
-    
-# clean baidunetdisk
-RUN cd /opt/baidunetdisk \
-    && tar -cjvf LICENSES.chromium.html.tar.bz2 LICENSES.chromium.html \
-    && rm LICENSES.chromium.html \
-    && cd / \
-    && rm -rf /opt/baidunetdisk/resources/app.asar.unpacked/node_modules/@baidu/clipboard-listen-macos/src \
-    # clear font cache
-    && rm -rf /var/cache/fontconfig/*
-
-# clear apt cache
-RUN apt-get purge --autoremove -y \
-        # curl \
-        # bzip2 \
+# Install system packages.
+RUN apt-get update && apt-get install -y \
+    # Used to determine if nginx is ready.
+    netcat \
+    # For ifconfig
+    net-tools \
+    # Needed to generate self-signed certificates
+    openssl \
+    # Needed for VNC
+    tigervnc-standalone-server tigervnc-common \
+    # Needed for Openbox
+    openbox \
+    # Needed for Nginx
+    nginx \
+    # Needed for noVNC
+    novnc \
+    # Clean up
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* \
-    && rm -rf /var/log/*.log
+    && rm -rf /var/lib/apt/lists/*
 
-# Clean temp apt source & reset debian apt source
-# RUN echo "#!/bin/sh\n/opt/baidunetdisk/baidunetdisk --disable-gpu-sandbox --no-sandbox" > /startapp.sh \
-#     # set /startapp.sh
-#     && chmod +x /startapp.sh \
-#     # openbox
-#     && mkdir -p /etc/openbox \
-#     && echo "<Type>normal</Type>\n<Name>Baidunetdisk</Name>" > /etc/openbox/main-window-selection.xml \
-#     # set /config/.config/mimeapps.list
-#     && mkdir -p /config/.config \
-#     && echo "\n[Default Applications]\nx-scheme-handler/baiduyunguanjia=baidunetdisk.desktop" > /config/.config/mimeapps.list \
-#     && chmod 777 /config/.config/mimeapps.list
+# Set environment variables.
+ENV DISPLAY_WIDTH=1920 \
+    DISPLAY_HEIGHT=1080 \
+    DARK_MODE=0 \
+    SECURE_CONNECTION=0 \
+    SECURE_CONNECTION_VNC_METHOD=SSL \
+    SECURE_CONNECTION_CERTS_CHECK_INTERVAL=60 \
+    WEB_LISTENING_PORT=5800 \
+    VNC_LISTENING_PORT=5900 \
+    VNC_PASSWORD="" \
+    ENABLE_CJK_FONT=0
 
-# ENTRYPOINT ["/init"]
-
-# Start VNC server
-CMD ["vncserver", "-fg"]
+# Expose ports.
+#   - 5800: VNC web interface
+#   - 5900: VNC
+EXPOSE 5800 5900
