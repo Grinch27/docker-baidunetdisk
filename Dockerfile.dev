@@ -2,7 +2,7 @@
 FROM debian:12-slim
 
 # Install system packages.
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     # Used to determine if nginx is ready.
     netcat-openbsd \
     # For ifconfig
