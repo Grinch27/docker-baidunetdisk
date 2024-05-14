@@ -156,10 +156,10 @@ jobs:
           container_name: ${{ env.package_app }}
         run: |
           # Run Docker container
-          docker run --name ${{ env.container_name }} --rm -d -p 6080:6080 ${{ env.image }} sleep infinity
+          docker run --name ${{ env.container_name }} --rm -d ${{ env.image }} sleep infinity
 
-          # Test noVNC
-          docker exec ${{ env.container_name }} curl localhost:6080
+          # List all installed packages
+          docker exec ${{ env.container_name }} dpkg -l
 
           # Stop Docker container
           docker stop ${{ env.container_name }}
