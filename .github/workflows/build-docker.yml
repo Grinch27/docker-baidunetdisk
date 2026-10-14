@@ -46,12 +46,12 @@ env:
   tag: ${{ inputs.tag || 'latest' }}
   version: ${{ inputs.version }}
 
+permissions: write-all
+
 jobs:
   runner-image:
     name: ubuntu-latest - runner-image
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     outputs:
       RUNNER_IMAGE: ${{ steps.resolve-runner-image.outputs.RUNNER_IMAGE }}
     steps:
@@ -63,9 +63,6 @@ jobs:
     name: Build Docker
     needs: runner-image
     runs-on: ${{ needs.runner-image.outputs.RUNNER_IMAGE }}
-    permissions:
-      contents: write
-      pull-requests: write
     steps:
       - name: Checkout DIY
         uses: actions/checkout@main
